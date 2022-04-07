@@ -36,13 +36,15 @@ package sfs3
 import (
 	"fmt"
 	"io"
+	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-var (
-	BUF int = 4096*4 // set the desired buffer size
+var ( 
+	readSz int = 4096
+	BUF int = readSz*8 // set the desired buffer size
 )
 
 // Object uses range requests to incrementally read an S3 object
@@ -55,9 +57,11 @@ type Object struct {
 	RequestCount int // keep track of number of requests
 	ByteCount    int // bytes transferred from s3
 
+	mu  sync.Mutex
 	buf []byte
 	off int64
 	ridx int64
+	pidx int64 // progressive index - allows us to guess which reads are sequential, which are out of order
 }
 
 // New creates a new Object. It makes one HeadObject request to fill the Size and MIME fields.
@@ -93,7 +97,6 @@ func (o *Object) IsSlicer() bool {
 
 // Slice returns a byte slice at offset off, with length l
 func (o *Object) Slice(off int64, l int) ([]byte, error) {
-	fmt.Printf("Slicing %d, %d\n", off, l)
 	if off >= o.Sz {
 		return nil, io.EOF
 	}
@@ -102,11 +105,21 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	   err = io.EOF
 	   l = int(o.Sz - off)
 	}
-	// if we already have the bytes in the buf slice, return immediately
+	// guard against concurrent calls 
+	obj.mu.Lock()
+	defer obj.mu.Unlock()
+	// if we already have the bytes in the buf slice, share those bytes
 	if off >= o.off && off+int64(l) <= o.off+int64(len(o.buf)) {
-		fmt.Printf("Shortcut %d, %d; %d, %d\n", off, l, o.off, len(o.buf))
 		start := int(off - o.off)
-		return o.buf[start : start+l], err
+		// if this is a sequential read, return a slice of the underlying slice. Otherwise, copy
+		if l == readSz && off == o.pidx {
+		  o.pidx += readSz
+		  return o.buf[start : start+l], err
+		} else {
+			ret := make([]byte, l)
+			copy(ret, o.buf[start : start+l])
+			return ret
+		}
 	}
 	// the bytes aren't in our buffer, we need to fetch
 	o.off = off
@@ -114,7 +127,6 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	if o.off + int64(BUF) > o.Sz {
 	  o.off = o.Sz-int64(BUF)
 	}
-	fmt.Printf("Fetching %d, %d\n", o.off, o.off+int64(BUF))
 	o.RequestInput.Range = aws.String(fmt.Sprintf("bytes=%d-%d", o.off, o.off+int64(BUF)))
 	// now GetObject
 	out, e := o.Svc.GetObject(o.RequestInput)
@@ -132,7 +144,14 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	}
 	o.ByteCount += BUF
 	start := int(off - o.off)
-	return o.buf[start : start+l], err
+	// if this is a sequential read, return a slice of the underlying slice. Otherwise, copy
+	if l == readSz && off == o.pidx {
+          o.pidx += readSz
+	  return o.buf[start : start+l], err
+	}
+	ret := make([]byte, l)
+	copy(ret, o.buf[start : start+l])
+	return ret
 }
 
 // EofSlice returns a slice from the end of the file at offset off, with length l
