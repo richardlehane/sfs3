@@ -162,6 +162,6 @@ func (o *Object) Read(b []byte) (int, error) {
 	if slc == nil {
 		return 0, err
 	}
-	o.ridx += len(slc)
+	o.ridx += int64(len(slc))
 	return copy(b, slc), err
 }
