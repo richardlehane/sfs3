@@ -35,7 +35,7 @@ func Example() {
     log.Fatal(err)
   }
   // the Object keeps count of the number of fetches and bytes transferred
-  log.Printf("Performed %d fetches and retrieved %d bytes. The file size is % bytes.", obj.RequestCount, obj.ByteCount, obj.Sz)
+  log.Printf("Performed %d fetches and retrieved %d bytes. The file size is %d bytes.", obj.RequestCount, obj.ByteCount, obj.Sz)
   // print out the ids
   for _, id := range ids {
     // sf Label decorates our id fields with labels
