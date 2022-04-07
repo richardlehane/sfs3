@@ -57,6 +57,7 @@ type Object struct {
 
 	buf []byte
 	off int64
+	ridx int64
 }
 
 // New creates a new Object. It makes one HeadObject request to fill the Size and MIME fields.
@@ -156,15 +157,11 @@ func (o *Object) Size() int64 {
 
 // Read ensures we are an io.Reader as well. This method should never be used within siegfried
 func (o *Object) Read(b []byte) (int, error) {
-	var off int64
-	// if not the first read, increment the offset
-	if o.l > 0 {
-		off = o.off + int64(o.l)
-	}
 	// now get a slice
-	slc, err := o.Slice(off, len(b))
+	slc, err := o.Slice(o.ridx, len(b))
 	if slc == nil {
 		return 0, err
 	}
+	o.ridx += len(slc)
 	return copy(b, slc), err
 }
