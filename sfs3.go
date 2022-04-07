@@ -105,7 +105,7 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	// if we already have the bytes in the buf slice, return immediately
 	if off >= o.off && off+int64(l) <= o.off+int64(len(o.buf)) {
 		fmt.Printf("shortcut %d, %d; %d, %d", off, l, o.off, len(o.buf))
-		start := int(off - o.off)
+		//start := int(off - o.off)
 		//return o.buf[start : start+l], err
 		return []byte{0,0,0,0,0,0,0,0}, io.EOF
 	}
@@ -131,10 +131,10 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	n, e := out.Body.Read(o.buf)
 	if n < BUF {
 		//return nil, e
-		return []byte{0,0,0,0,0,0,0,0}, io.EOF
+		return []byte{0,0,0,0,0,0,0,0}, err
 	}
 	o.ByteCount += BUF
-	start := int(off - o.off)
+	//start := int(off - o.off)
 	//return o.buf[start : start+l], err
 	return []byte{0,0,0,0,0,0,0,0}, io.EOF
 }
