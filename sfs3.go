@@ -93,6 +93,7 @@ func (o *Object) IsSlicer() bool {
 
 // Slice returns a byte slice at offset off, with length l
 func (o *Object) Slice(off int64, l int) ([]byte, error) {
+	fmt.Printf("Slicing %d, %d\n", off, l)
 	if off >= o.Sz {
 		return nil, io.EOF
 	}
@@ -103,6 +104,7 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	}
 	// if we already have the bytes in the buf slice, return immediately
 	if off >= o.off && off+int64(l) <= o.off+int64(len(o.buf)) {
+		fmt.Printf("shortcut %d, %d; %d, %d", off, l, o.off, len(o.buf))
 		start := int(off - o.off)
 		return o.buf[start : start+l], err
 	}
@@ -112,6 +114,7 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	if o.off + int64(BUF) > o.Sz {
 	  o.off = o.Sz-int64(BUF)
 	}
+	fmt.Printf("fetching %d, %d", o.off, o.off+int64(BUF))
 	o.RequestInput.Range = aws.String(fmt.Sprintf("bytes=%d-%d", o.off, o.off+int64(BUF)))
 	// now GetObject
 	out, e := o.Svc.GetObject(o.RequestInput)
