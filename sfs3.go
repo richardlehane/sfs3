@@ -111,7 +111,7 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	if o.off + int64(BUF) > o.Sz {
 	  o.off = o.Sz-int64(BUF)
 	}
-	o.RequestInput.Range = aws.String(fmt.Sprintf("bytes=%d-%d", o.off, o.off+int64(BUF))
+	o.RequestInput.Range = aws.String(fmt.Sprintf("bytes=%d-%d", o.off, o.off+int64(BUF)))
 	// now GetObject
 	out, e := o.Svc.GetObject(o.RequestInput)
 	o.RequestCount++
