@@ -132,7 +132,7 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	n, e := out.Body.Read(o.buf)
 	if n < BUF {
 		//return nil, e
-		fmt.Printf("Returning early after read failure %v\n", e)
+		fmt.Printf("Returning early after read failure %v; read %d, expected %d\n", e, n, BUF)
 		return []byte{0,0,0,0,0,0,0,0}, err
 	}
 	o.ByteCount += BUF
