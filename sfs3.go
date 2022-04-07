@@ -36,11 +36,12 @@ package sfs3
 import (
 	"fmt"
 	"io"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
-
+var counter int
 // Object uses range requests to incrementally read an S3 object
 type Object struct {
 	Svc          *s3.S3 // AWS Service Client
@@ -82,6 +83,8 @@ func (o *Object) IsSlicer() bool {
 
 // Slice returns a byte slice at offset off, with length l
 func (o *Object) Slice(off int64, l int) ([]byte, error) {
+	counter++
+	log.Printf("Slice called, count: %d\n", counter)
 	// if we already have the bytes in the buf slice, return immediately
 	if off >= o.off && off+int64(l) <= o.off+int64(o.l) {
 		start := int(off - o.off)
@@ -140,6 +143,7 @@ func (o *Object) Size() int64 {
 
 // Read ensures we are an io.Reader as well. This method should never be used within siegfried
 func (o *Object) Read(b []byte) (int, error) {
+	log.Println("READ CALLED)
 	var off int64
 	// if not the first read, increment the offset
 	if o.l > 0 {
