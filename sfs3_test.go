@@ -41,4 +41,5 @@ func ExampleSfs3() {
       fmt.Printf("%s: %s\n", kv[0], kv[1])
     }
   }
+  // Output: I have no idea what will happen here
 }
