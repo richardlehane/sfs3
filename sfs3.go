@@ -71,6 +71,9 @@ func New(svc *s3.S3, bucket string, key string) (*Object, error) {
 	if err != nil {
 		return nil, err
 	}
+	if int(*head.ContentLength) <= 0 {
+		return nil, fmt.Errorf("Can't determine size of object, got %d", *head.ContentLength)
+	}
 	// if the buffer size is bigger than the file, make it the size of the file
 	if int(*head.ContentLength) < BUF {
 		BUF = int(*head.ContentLength)
