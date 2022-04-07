@@ -4,7 +4,6 @@ import (
   "log"
   "fmt"
   "os"
-  "log"
   
   "github.com/aws/aws-sdk-go/aws/session"
   "github.com/aws/aws-sdk-go/service/s3"
@@ -35,7 +34,8 @@ func Example() {
   if err != nil {
     log.Fatal(err)
   }
-  log.Printf("Performed %d fetches and retrieved %d bytes. The file size is % bytes.", o.RequestCount, o.ByteCount, o.Sz)
+  // the Object keeps count of the number of fetches and bytes transferred
+  log.Printf("Performed %d fetches and retrieved %d bytes. The file size is % bytes.", obj.RequestCount, obj.ByteCount, obj.Sz)
   // print out the ids
   for _, id := range ids {
     // sf Label decorates our id fields with labels
