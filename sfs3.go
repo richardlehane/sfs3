@@ -122,7 +122,7 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	o.RequestCount++
 	if e != nil {
 		// return nil, e
-		fmt.Println("Returning early %v\n", e)
+		fmt.Printf("Returning early %v\n", e)
 		return []byte{0,0,0,0,0,0,0,0}, io.EOF
 	}
 	// resize the buf if necessary
@@ -132,7 +132,7 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	n, e := out.Body.Read(o.buf)
 	if n < BUF {
 		//return nil, e
-		fmt.Println("Returning early after read failure %v\n", e)
+		fmt.Printf("Returning early after read failure %v\n", e)
 		return []byte{0,0,0,0,0,0,0,0}, err
 	}
 	o.ByteCount += BUF
