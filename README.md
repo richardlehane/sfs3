@@ -26,7 +26,7 @@ func Example() {
   }
   svc := s3.New(sess)
   // make a new Object
-  obj, err := New(svc, os.Getenv("AWS_BUCKET"), os.Getenv("AWS_OBJECT"))
+  obj, err := sfs3.New(svc, os.Getenv("AWS_BUCKET"), os.Getenv("AWS_OBJECT"))
   if err != nil {
     log.Fatal(err)
   }
