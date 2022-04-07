@@ -12,7 +12,7 @@ import (
 
 func ExampleSfs3() {
   // make a new siegfried
-  sf, err := siegfried.Load("latest") // download from https://www.itforarchivists.com/siegfried/latest
+  sf, err := siegfried.Load("latest") // available at https://www.itforarchivists.com/siegfried/latest
   if err != nil {
    	log.Fatal(err)
   }
