@@ -45,10 +45,10 @@ func Example() {
   }
   // Output:
   // namespace: pronom
-  // id: fmt/43
-  // format: JPEG File Interchange Format
-  // version: 1.01
-  // mime: image/jpeg
-  // basis: extension match jpg; mime match image/jpeg; byte match at [[0 14] [98409 2]]
+  // id: fmt/4
+  // format: Graphics Interchange Format
+  // version: 89a
+  // mime: image/gif
+  // basis: extension match gif; mime match image/gif; byte match at [[0 6] [1001717 1]]
   // warning:
 }
