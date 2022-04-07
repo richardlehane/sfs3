@@ -111,11 +111,11 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 		o.buf = make([]byte, l)
 	}
 	n, e := out.Body.Read(o.buf)
-	if n < 1 {
+	if n < l {
 		return nil, e
 	}
 	o.off = off
-	o.l = n
+	o.l = l
 	return o.buf[:n], err
 }
 
