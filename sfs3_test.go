@@ -10,7 +10,7 @@ import (
   "github.com/richardlehane/siegfried"
 )
 
-func ExampleSfs3() {
+func Example() {
   // make a new siegfried
   sf, err := siegfried.Load("latest") // available at https://www.itforarchivists.com/siegfried/latest
   if err != nil {
