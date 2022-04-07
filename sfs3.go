@@ -104,7 +104,7 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	}
 	// if we already have the bytes in the buf slice, return immediately
 	if off >= o.off && off+int64(l) <= o.off+int64(len(o.buf)) {
-		fmt.Printf("shortcut %d, %d; %d, %d", off, l, o.off, len(o.buf))
+		fmt.Printf("Shortcut %d, %d; %d, %d\n", off, l, o.off, len(o.buf))
 		//start := int(off - o.off)
 		//return o.buf[start : start+l], err
 		return []byte{0,0,0,0,0,0,0,0}, io.EOF
