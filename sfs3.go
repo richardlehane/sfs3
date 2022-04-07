@@ -102,6 +102,7 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	o.RequestInput.Range = aws.String(fmt.Sprintf("bytes=%d-%d", off, off+int64(l)))
 	// now GetObject
 	out, e := o.Svc.GetObject(o.RequestInput)
+	log.Println("Performing a range request")
 	if e != nil {
 		return nil, e
 	}
