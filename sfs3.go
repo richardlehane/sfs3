@@ -84,7 +84,7 @@ func (o *Object) IsSlicer() bool {
 // Slice returns a byte slice at offset off, with length l
 func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	counter++
-	log.Printf("Slice called, count: %d, off: %d, len: %d\n", counter, off, len)
+	log.Printf("Slice called, count: %d, off: %d, len: %d\n", counter, off, l)
 	// if we already have the bytes in the buf slice, return immediately
 	if off >= o.off && off+int64(l) <= o.off+int64(o.l) {
 		start := int(off - o.off)
