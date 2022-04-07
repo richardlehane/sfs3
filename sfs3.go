@@ -96,9 +96,9 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 		err = io.EOF
 		l = int(o.Size - off)
 	}
-	o.requestInput.Range = aws.String(fmt.Sprintf("bytes=%d-%d", off, off+int64(l)))
+	o.RequestInput.Range = aws.String(fmt.Sprintf("bytes=%d-%d", off, off+int64(l)))
 	// now GetObject
-	out, e := svc.GetObject(o.requestInput)
+	out, e := o.Svc.GetObject(o.RequestInput)
 	if e != nil {
 		return nil, e
 	}
@@ -134,12 +134,12 @@ func (o *Object) EofSlice(off int64, l int) ([]byte, error) {
 }
 
 // Size returns the Object's content length
-func (o *object) Size() int64 {
+func (o *Object) Size() int64 {
 	return o.Size
 }
 
 // Read ensures we are an io.Reader as well. This method should never be used within siegfried
-func (o *object) Read(b []byte) (int, error) {
+func (o *Object) Read(b []byte) (int, error) {
 	var off int64
 	// if not the first read, increment the offset
 	if o.l > 0 {
