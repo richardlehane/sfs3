@@ -23,6 +23,7 @@ jobs:
       - name: Run test
         run: |
           go mod init github.com/richardlehane/sfs3
+          go mod tidy
           go test
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
