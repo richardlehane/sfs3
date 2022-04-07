@@ -143,7 +143,7 @@ func (o *Object) Size() int64 {
 
 // Read ensures we are an io.Reader as well. This method should never be used within siegfried
 func (o *Object) Read(b []byte) (int, error) {
-	log.Println("READ CALLED)
+	log.Println("******READ CALLED*****")
 	var off int64
 	// if not the first read, increment the offset
 	if o.l > 0 {
