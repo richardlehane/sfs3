@@ -44,7 +44,7 @@ import (
 
 var ( 
 	readSz int = 4096
-	BUF int = readSz*8 // set the desired buffer size
+	BUF int = readSz*2 // set the desired buffer size
 )
 
 // Object uses range requests to incrementally read an S3 object
