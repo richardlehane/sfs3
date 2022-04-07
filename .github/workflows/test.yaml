@@ -22,6 +22,11 @@ jobs:
         run: wget https://www.itforarchivists.com/siegfried/latest
       - name: Run test
         run: |
-          go mod init
+          go mod init github.com/richardlehane/sfs3
           go test
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET }}
+          AWS_BUCKET: siegfried-s3-test
+          AWS_OBJECT: IMG-20220331-WA0003.jpg
           
