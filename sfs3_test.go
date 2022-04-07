@@ -41,5 +41,12 @@ func Example() {
       fmt.Printf("%s: %s\n", kv[0], kv[1])
     }
   }
-  // Output: I have no idea what will happen here
+  // Output:
+  // namespace: pronom
+  // id: fmt/43
+  // format: JPEG File Interchange Format
+  // version: 1.01
+  // mime: image/jpeg
+  // basis: extension match jpg; mime match image/jpeg; byte match at [[0 14] [98409 2]]
+  // warning:
 }
