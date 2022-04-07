@@ -136,7 +136,7 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 		return []byte{0,0,0,0,0,0,0,0}, err
 	}
 	o.ByteCount += BUF
-	//start := int(off - o.off)
+	start := int(off - o.off)
 	//return o.buf[start : start+l], err
 	fmt.Println("OK: %d, %d with len %d\n", start, start+l, len(o.buf))
 	return []byte{0,0,0,0,0,0,0,0}, io.EOF
