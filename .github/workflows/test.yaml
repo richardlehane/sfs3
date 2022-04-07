@@ -1,0 +1,26 @@
+# This workflow runs the test.
+#
+# Trigger this workflow by pushing commits or by opening 
+# a pull request.
+name: Test
+on: 
+  push:
+  pull_request:
+    types:
+      - opened
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Install latest version of go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.x
+      - name: Get latest siegfried signature
+        run: wget https://www.itforarchivists.com/siegfried/latest
+      - name: Mod init
+        run: |
+          go test
+          
