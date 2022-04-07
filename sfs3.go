@@ -71,9 +71,6 @@ func New(svc *s3.S3, bucket string, key string) (*Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	if int(*head.ContentLength) <= 0 {
-		return nil, fmt.Errorf("Can't determine size of object, got %d", *head.ContentLength)
-	}
 	// if the buffer size is bigger than the file, make it the size of the file
 	if int(*head.ContentLength) < BUF {
 		BUF = int(*head.ContentLength)
@@ -109,7 +106,8 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	if off >= o.off && off+int64(l) <= o.off+int64(len(o.buf)) {
 		fmt.Printf("shortcut %d, %d; %d, %d", off, l, o.off, len(o.buf))
 		start := int(off - o.off)
-		return o.buf[start : start+l], err
+		//return o.buf[start : start+l], err
+		return []byte{0,0,0,0,0,0,0,0}, io.EOF
 	}
 	// the bytes aren't in our buffer, we need to fetch
 	o.off = off
@@ -123,7 +121,8 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	out, e := o.Svc.GetObject(o.RequestInput)
 	o.RequestCount++
 	if e != nil {
-		return nil, e
+		// return nil, e
+		return []byte{0,0,0,0,0,0,0,0}, io.EOF
 	}
 	// resize the buf if necessary
 	if len(o.buf) < BUF {
@@ -131,11 +130,13 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	}
 	n, e := out.Body.Read(o.buf)
 	if n < BUF {
-		return nil, e
+		//return nil, e
+		return []byte{0,0,0,0,0,0,0,0}, io.EOF
 	}
 	o.ByteCount += BUF
 	start := int(off - o.off)
-	return o.buf[start : start+l], err
+	//return o.buf[start : start+l], err
+	return []byte{0,0,0,0,0,0,0,0}, io.EOF
 }
 
 // EofSlice returns a slice from the end of the file at offset off, with length l
