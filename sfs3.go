@@ -36,22 +36,27 @@ package sfs3
 import (
 	"fmt"
 	"io"
-	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
-var counter int
+
+var (
+	BUF int = 4096*8 // set the desired buffer size
+)
+
 // Object uses range requests to incrementally read an S3 object
 type Object struct {
 	Svc          *s3.S3 // AWS Service Client
 	Sz           int64
 	MIME         string
 	RequestInput *s3.GetObjectInput
+	
+	RequestCount int // keep track of number of requests
+	ByteCount    int // bytes transferred from s3
 
 	buf []byte
 	off int64
-	l   int
 }
 
 // New creates a new Object. It makes one HeadObject request to fill the Size and MIME fields.
@@ -64,6 +69,10 @@ func New(svc *s3.S3, bucket string, key string) (*Object, error) {
 	})
 	if err != nil {
 		return nil, err
+	}
+	// if the buffer size is bigger than the file, make it the size of the file
+	if int(*head.ContentLength) < BUF {
+		BUF = int(*head.ContentLength)
 	}
 	return &Object{
 		Svc:  svc,
@@ -83,40 +92,43 @@ func (o *Object) IsSlicer() bool {
 
 // Slice returns a byte slice at offset off, with length l
 func (o *Object) Slice(off int64, l int) ([]byte, error) {
-	counter++
-	log.Printf("Slice called, count: %d, off: %d, len: %d\n", counter, off, l)
-	// if we already have the bytes in the buf slice, return immediately
-	if off >= o.off && off+int64(l) <= o.off+int64(o.l) {
-		start := int(off - o.off)
-		return o.buf[start : start+l], nil
-	}
 	if off >= o.Sz {
 		return nil, io.EOF
 	}
-	// calculate the range
 	var err error
-	if off+int64(l) > o.Sz {
-		err = io.EOF
-		l = int(o.Sz - off)
+	if off + int64(l) > o.Sz {
+	   err = io.EOF
+	   l = int(o.Sz - off)
 	}
-	o.RequestInput.Range = aws.String(fmt.Sprintf("bytes=%d-%d", off, off+int64(l)))
+	// if we already have the bytes in the buf slice, return immediately
+	if off >= o.off && off+int64(l) <= o.off+int64(len(o.buf)) {
+		start := int(off - o.off)
+		return o.buf[start : start+l], err
+	}
+	// the bytes aren't in our buffer, we need to fetch
+	o.off = off
+	// if we're near the eof, get the last buf size from the file
+	if o.off + int64(BUF) > o.Sz {
+	  o.off = o.Sz-int64(BUF)
+	}
+	o.RequestInput.Range = aws.String(fmt.Sprintf("bytes=%d-%d", o.off, o.off+int64(BUF))
 	// now GetObject
 	out, e := o.Svc.GetObject(o.RequestInput)
-	log.Println("Performing a range request")
+	o.RequestCount++
 	if e != nil {
 		return nil, e
 	}
 	// resize the buf if necessary
-	if len(o.buf) < l {
-		o.buf = make([]byte, l)
+	if len(o.buf) < BUF {
+		o.buf = make([]byte, BUF)
 	}
 	n, e := out.Body.Read(o.buf)
-	if n < l {
+	if n < BUF {
 		return nil, e
 	}
-	o.off = off
-	o.l = l
-	return o.buf[:n], err
+	o.ByteCount += BUF
+	start := int(off - o.off)
+	return o.buf[start : start+l], err
 }
 
 // EofSlice returns a slice from the end of the file at offset off, with length l
