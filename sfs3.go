@@ -106,19 +106,19 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	   l = int(o.Sz - off)
 	}
 	// guard against concurrent calls 
-	obj.mu.Lock()
-	defer obj.mu.Unlock()
+	o.mu.Lock()
+	defer o.mu.Unlock()
 	// if we already have the bytes in the buf slice, share those bytes
 	if off >= o.off && off+int64(l) <= o.off+int64(len(o.buf)) {
 		start := int(off - o.off)
 		// if this is a sequential read, return a slice of the underlying slice. Otherwise, copy
 		if l == readSz && off == o.pidx {
-		  o.pidx += readSz
-		  return o.buf[start : start+l], err
+			o.pidx += int64(readSz)
+		        return o.buf[start : start+l], err
 		} else {
 			ret := make([]byte, l)
 			copy(ret, o.buf[start : start+l])
-			return ret
+			return ret, err
 		}
 	}
 	// the bytes aren't in our buffer, we need to fetch
@@ -146,12 +146,12 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	start := int(off - o.off)
 	// if this is a sequential read, return a slice of the underlying slice. Otherwise, copy
 	if l == readSz && off == o.pidx {
-          o.pidx += readSz
+		o.pidx += int64(readSz)
 	  return o.buf[start : start+l], err
 	}
 	ret := make([]byte, l)
 	copy(ret, o.buf[start : start+l])
-	return ret
+	return ret, err
 }
 
 // EofSlice returns a slice from the end of the file at offset off, with length l
