@@ -44,7 +44,7 @@ import (
 // Object uses range requests to incrementally read an S3 object
 type Object struct {
 	Svc          *s3.S3 // AWS Service Client
-	Size         int64
+	Sz           int64
 	MIME         string
 	RequestInput *s3.GetObjectInput
 
@@ -66,7 +66,7 @@ func New(svc *s3.S3, bucket string, key string) (*Object, error) {
 	}
 	return &Object{
 		Svc:  svc,
-		Size: *head.ContentLength,
+		Sz:   *head.ContentLength,
 		MIME: *head.ContentType,
 		RequestInput: &s3.GetObjectInput{
 			Bucket: aws.String(bucket),
@@ -87,14 +87,14 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 		start := int(off - o.off)
 		return o.buf[start : start+l], nil
 	}
-	if off >= o.Size {
+	if off >= o.Sz {
 		return nil, io.EOF
 	}
 	// calculate the range
 	var err error
-	if off+int64(l) > o.Size {
+	if off+int64(l) > o.Sz {
 		err = io.EOF
-		l = int(o.Size - off)
+		l = int(o.Sz - off)
 	}
 	o.RequestInput.Range = aws.String(fmt.Sprintf("bytes=%d-%d", off, off+int64(l)))
 	// now GetObject
@@ -117,14 +117,14 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 
 // EofSlice returns a slice from the end of the file at offset off, with length l
 func (o *Object) EofSlice(off int64, l int) ([]byte, error) {
-	if off >= o.Size {
+	if off >= o.Sz {
 		return nil, io.EOF
 	}
 	var err error
-	if l > int(o.Size-off) {
-		l, off, err = int(o.Size-off), 0, io.EOF
+	if l > int(o.Sz-off) {
+		l, off, err = int(o.Sz-off), 0, io.EOF
 	} else {
-		off = o.Size - off - int64(l)
+		off = o.Sz - off - int64(l)
 	}
 	slc, err1 := o.Slice(off, l)
 	if err1 != nil {
@@ -135,7 +135,7 @@ func (o *Object) EofSlice(off int64, l int) ([]byte, error) {
 
 // Size returns the Object's content length
 func (o *Object) Size() int64 {
-	return o.Size
+	return o.Sz
 }
 
 // Read ensures we are an io.Reader as well. This method should never be used within siegfried
