@@ -105,9 +105,8 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	// if we already have the bytes in the buf slice, return immediately
 	if off >= o.off && off+int64(l) <= o.off+int64(len(o.buf)) {
 		fmt.Printf("Shortcut %d, %d; %d, %d\n", off, l, o.off, len(o.buf))
-		//start := int(off - o.off)
-		//return o.buf[start : start+l], err
-		return []byte{0,0,0,0,0,0,0,0}, io.EOF
+		start := int(off - o.off)
+		return o.buf[start : start+l], err
 	}
 	// the bytes aren't in our buffer, we need to fetch
 	o.off = off
@@ -121,9 +120,7 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	out, e := o.Svc.GetObject(o.RequestInput)
 	o.RequestCount++
 	if e != nil {
-		// return nil, e
-		fmt.Printf("Returning early %v\n", e)
-		return []byte{0,0,0,0,0,0,0,0}, io.EOF
+		return nil, e
 	}
 	// resize the buf if necessary
 	if len(o.buf) < BUF {
@@ -131,15 +128,11 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	}
 	_, e = io.ReadFull(out.Body, o.buf)
 	if e != nil {
-		//return nil, e
-		fmt.Printf("Returning early after read failure %v\n", e)
-		return []byte{0,0,0,0,0,0,0,0}, err
+		return nil, e
 	}
 	o.ByteCount += BUF
 	start := int(off - o.off)
-	//return o.buf[start : start+l], err
-	fmt.Printf("OK: %d, %d with len %d\n", start, start+l, len(o.buf))
-	return []byte{0,0,0,0,0,0,0,0}, io.EOF
+	return o.buf[start : start+l], err
 }
 
 // EofSlice returns a slice from the end of the file at offset off, with length l
