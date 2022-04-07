@@ -21,14 +21,14 @@ jobs:
       - name: Get latest siegfried signature
         run: wget https://www.itforarchivists.com/siegfried/latest
       - name: Run test
-        run: |
-          go mod init github.com/richardlehane/sfs3
-          go mod tidy
-          go test -v
+        run:  go test -v
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET }}
           AWS_REGION: eu-central-1
           AWS_BUCKET: siegfried-s3-test
-          AWS_OBJECT: Rotating_earth_(large).gif
+          AWS_GIF: Rotating_earth_(large).gif
+          AWS_JPG: IMG-20220331-WA0003.jpg
+          AWS_MP4: sample-5s.mp4
+          AWS_PNG: PNG_transparency_demonstration_1.png
           
