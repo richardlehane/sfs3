@@ -105,6 +105,10 @@ func (o *Object) Slice(off int64, l int) ([]byte, error) {
 	   err = io.EOF
 	   l = int(o.Sz - off)
 	}
+	// ensure that our buffer size is always large enough for the slice length
+	for l > BUF {
+	  BUF += readSz
+	}
 	// guard against concurrent calls 
 	o.mu.Lock()
 	defer o.mu.Unlock()
