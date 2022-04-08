@@ -4,11 +4,7 @@ This package is a demonstration of how to do range reading of an S3 object with 
 
 It works by implementing siegfried's [source](https://github.com/richardlehane/siegfried/blob/main/internal/siegreader/external.go) interface.
 
-This isn't an optimised solution and the approach could be improved, e.g.:
-
-  - with a larger internal buffer you could avoid doing range requests for every call of the Slice method
-  - you could add logging to determine how many requests are made, how many bytes are downloaded
-  - you could add throttling, time outs, and maximum bounds on number/size of requests.
+Still a work in progress: this isn't an optimised solution, is currently slower and more costly than full reads for most file types, and isn't recommend for use yet.
 
 # Usage
 
