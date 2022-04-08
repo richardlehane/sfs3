@@ -55,32 +55,26 @@ func Example() {
 }
 
 func TestIDs(t *testing.T) {
-	// make a new siegfried
-	sf, err := siegfried.Load("latest") // available at https://www.itforarchivists.com/siegfried/latest
+	sf, err := siegfried.Load("latest")
 	if err != nil {
 		log.Fatal(err)
 	}
-	// set up AWS session/ service
 	sess, err := session.NewSession()
 	if err != nil {
 		log.Fatal(err)
 	}
 	svc := s3.New(sess)
-	expect := []string{"fmt/4", "fmt/4", "fmt/4", "fmt/4"}
+	expect := []string{"fmt/4", "fmt/43", "fmt/199", "fmt/11"}
 	for aws_idx, aws_object := range []string{"AWS_GIF", "AWS_JPG", "AWS_MP4", "AWS_PNG"} {
-		// make a new Object
 		obj, err := New(svc, os.Getenv("AWS_BUCKET"), os.Getenv(aws_object))
 		if err != nil {
 			t.Fatal(err)
 		}
-		// pass the Object to sf to get a siegfried buffer
 		buf, err := sf.Buffer(obj)
-		// use the IdentifyBuffer method to do the identification
 		ids, err := sf.IdentifyBuffer(buf, err, os.Getenv(aws_object), obj.MIME)
 		if err != nil {
 			t.Fatal(err)
 		}
-		// the Object keeps count of the number of fetches and bytes transferred
 		log.Printf("Performed %d fetches and retrieved %d bytes. The file size is %d bytes.", obj.RequestCount, obj.ByteCount, obj.Sz)
 		// check the id
 		if ids[0].String() != expect[aws_idx] {
