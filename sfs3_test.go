@@ -75,7 +75,7 @@ func TestIDs(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		log.Printf("Performed %d fetches and retrieved %d bytes. The file size is %d bytes.", obj.RequestCount, obj.ByteCount, obj.Sz)
+		log.Printf("%s: performed %d fetches and retrieved %d bytes. The file size is %d bytes.", aws_object, obj.RequestCount, obj.ByteCount, obj.Sz)
 		// check the id
 		if ids[0].String() != expect[aws_idx] {
 			t.Fatalf("Expected %s, got %s", expect[aws_idx], ids[0].String())
