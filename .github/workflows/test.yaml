@@ -19,7 +19,7 @@ jobs:
         with:
           go-version: 1.x
       - name: Get latest siegfried signature
-        run: wget https://www.itforarchivists.com/siegfried/latest
+        run: wget -O default.sig https://www.itforarchivists.com/siegfried/latest/1_11/default
       - name: Run test
         run:  go test -v
         env:
@@ -31,4 +31,5 @@ jobs:
           AWS_JPG: IMG-20220331-WA0003.jpg
           AWS_MP4: sample-5s.mp4
           AWS_PNG: PNG_transparency_demonstration_1.png
+          SIEGFRIED_HOME: ""
           
