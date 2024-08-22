@@ -9,11 +9,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/richardlehane/siegfried"
+	"github.com/richardlehane/siegfried/pkg/config"
 )
 
 func Example() {
 	// make a new siegfried
-	sf, err := siegfried.Load("latest") // available at https://www.itforarchivists.com/siegfried/latest
+	sf, err := siegfried.Load(config.Signature())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,12 +51,13 @@ func Example() {
 	// format: Graphics Interchange Format
 	// version: 89a
 	// mime: image/gif
+	// class: Image (Raster)
 	// basis: extension match gif; mime match image/gif; byte match at [[0 6] [1001717 1]]
 	// warning:
 }
 
 func TestIDs(t *testing.T) {
-	sf, err := siegfried.Load("latest")
+	sf, err := siegfried.Load(config.Signature())
 	if err != nil {
 		log.Fatal(err)
 	}
